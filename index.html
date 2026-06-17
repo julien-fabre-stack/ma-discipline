@@ -1162,7 +1162,7 @@ function SuiviTab({data,update,today,openSettings}){
   const goToRdv=(catId)=>scrollToDay(findNextDay(k=>eventsOf(agenda,k).some(e=>e.typeId===catId)));
   return (
     <div className="flex flex-col" style={{height:"calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 64px)"}}>
-      <div className="flex-shrink-0 px-5 pt-5 pb-2">
+      <div className="flex-shrink-0 px-5 pt-5 pb-2" style={{background:C.night,position:"sticky",top:0,zIndex:30}}>
         <div className="flex items-start justify-between">
           <h1 className="text-2xl font-extrabold tracking-tight">Tableau de bord</h1>
           <button onClick={openSettings} className="p-2 rounded-full -mt-1" style={{background:C.surf}}><Icon name="gear" size={18} color={C.dim}/></button>
@@ -1746,6 +1746,7 @@ function App(){
   if(!data)return <div className="min-h-screen flex items-center justify-center" style={{background:C.night,color:C.dim}}>Synchronisation…</div>;
   return (
     <div style={{background:C.night,color:C.text,minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",paddingTop:"env(safe-area-inset-top)"}}>
+      <div style={{position:"fixed",top:0,left:0,right:0,height:"env(safe-area-inset-top)",background:C.night,zIndex:50}}/>
       {!online&&(
         <div className="fixed z-40 px-3 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5" style={{left:"50%",top:"calc(env(safe-area-inset-top) + 10px)",transform:"translateX(-50%)",...glassStyle({border:`1px solid ${hexA(C.gold,0.4)}`,color:C.gold})}}>
           <span className="w-2 h-2 rounded-full" style={{background:C.gold}}/>
