@@ -1066,13 +1066,6 @@ function DayPanel({data,update,dayKey}){
   const openTodos=todos.filter(t=>!t.done).length;
   return (
     <div>
-      <div className="font-bold capitalize mb-2" style={{fontSize:15,lineHeight:1.3}}>{dateLabel}</div>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {st&&<span className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{background:st.color,color:"#1A1206"}}>{st.label}</span>}
-        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{background:C.surf2,color:C.text}}>Sport : <span style={sport==="actif"?{fontWeight:800,textDecoration:"underline"}:{fontStyle:"italic",color:C.dim}}>{sport}</span></span>
-        {acts.map(a=>(<span key={a.id} className="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5" style={{background:C.night,color:C.text,border:`1px solid ${a.color}`}}><span className="w-2 h-2 rounded-full" style={{background:a.color}}/>{a.label}</span>))}
-      </div>
-
       <Collapsible title="Habitudes" badge={`${doneCount}/${habits.length}`} open={open.habits} onToggle={()=>toggle("habits")}>
         <div className="rounded-xl overflow-hidden mb-1" style={{border:`1px solid ${C.line}`}}>
           {habits.map((it,i)=>(<button key={it.id} onClick={()=>setHabit(it.id)} className="w-full flex items-center gap-2 px-2.5 py-2 text-left" style={{background:i%2?C.night:C.surf2}}><div className="rounded-full flex items-center justify-center flex-shrink-0" style={{width:18,height:18,background:dh[it.id]?dawn:"transparent",border:dh[it.id]?"none":`2px solid ${C.surf}`}}>{dh[it.id]&&<Icon name="check" size={11} color="#1A1206" strokeWidth={3}/>}</div><span className="text-xs" style={{color:dh[it.id]?C.text:C.dim}}>{it.label}</span></button>))}
@@ -1160,6 +1153,10 @@ function SuiviTab({data,update,today,openSettings}){
   const goToCycle=(catId)=>scrollToDay(findNextDay(k=>sportStatus(data,k)===catId));
   const goToPerfect=()=>scrollToDay(findNextDay(k=>k<=today&&ratioOfDay(data,k)>=1));
   const goToRdv=(catId)=>scrollToDay(findNextDay(k=>eventsOf(agenda,k).some(e=>e.typeId===catId)));
+  const selDateLabel=parseKey(selectedDay).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const selSt=statusOf(agenda,selectedDay);
+  const selActs=activitiesOf(agenda,selectedDay);
+  const selSport=sportStatus(data,selectedDay);
   return (
     <div className="flex flex-col" style={{height:"calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 64px)"}}>
       <div className="flex-shrink-0 px-5 pt-5 pb-2" style={{background:C.night,position:"sticky",top:0,zIndex:30}}>
@@ -1191,8 +1188,10 @@ function SuiviTab({data,update,today,openSettings}){
           {rdvTypes.map(r=>(<button key={r.id} onClick={()=>goToRdv(r.id)} className="px-2 py-1 rounded-full text-[10px] flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap" style={{background:C.surf,border:`1px solid ${r.color}`}}><span className="w-2 h-2 rounded-full" style={{background:r.color}}/>{r.label}</button>))}
         </div>
       </div>
-      <div className="flex-1 flex overflow-hidden" style={{borderTop:`1px solid ${C.line}`}}>
-        <div className="overflow-y-auto flex-shrink-0" style={{width:74+(activities.length+1)*(LANEW+2)+14}}>
+  return (
+    <div className="flex-1 flex overflow-hidden" style={{borderTop:`1px solid ${C.line}`}}>
+      {/* Header figé : date + statuts du jour sélectionné */}
+      <div className="flex-shrink-0 overflow-y-auto" style={{width:74+(activities.length+1)*(LANEW+2)+14}}>
           {days.map(k=>{
             const st=statusOf(agenda,k); const perfect=ratioOfDay(data,k)>=1 && k<=today;
             const isToday=k===today; const isSel=k===selectedDay; const sport=sportStatus(data,k);
@@ -1216,8 +1215,19 @@ function SuiviTab({data,update,today,openSettings}){
             );
           })}
         </div>
-        <div className="flex-1 overflow-y-auto px-3 py-3">
-          <DayPanel data={data} update={update} dayKey={selectedDay}/>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Date et statuts figés */}
+          <div className="flex-shrink-0 px-3 pt-3 pb-2" style={{background:C.night,borderBottom:`1px solid ${C.line}`}}>
+            <div className="font-bold capitalize mb-1.5" style={{fontSize:14,lineHeight:1.3,color:C.text}}>{selDateLabel}</div>
+            <div className="flex flex-wrap gap-1.5">
+              {selSt&&<span className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{background:selSt.color,color:"#1A1206"}}>{selSt.label}</span>}
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold" style={{background:C.surf2,color:C.text}}>Sport : <span style={selSport==="actif"?{fontWeight:800,textDecoration:"underline"}:{fontStyle:"italic",color:C.dim}}>{selSport}</span></span>
+              {selActs.map(a=>(<span key={a.id} className="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5" style={{background:C.night,color:C.text,border:`1px solid ${a.color}`}}><span className="w-2 h-2 rounded-full" style={{background:a.color}}/>{a.label}</span>))}
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto px-3 py-3">
+            <DayPanel data={data} update={update} dayKey={selectedDay}/>
+          </div>
         </div>
       </div>
     </div>
